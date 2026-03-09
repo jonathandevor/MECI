@@ -1,0 +1,189 @@
+
+                 MECI Release Notes  (ver. 1.5)
+                ===============================
+
+
+Input files:
+============
+
+Light curve format (3-column):
+------------------------------
+Column description:
+1. float   Time stamp 
+2. float   Magnitude 
+3. float   Magnitude uncertainty (must be positive)
+
+Examples:
+535.826113   -1.000  -1.000
+541.870983   17.009   0.028
+550.862006   17.036   0.012
+
+
+
+
+DEBiL DB (31-param) /w color format:
+------------------------------------
+
+Header1 column description:
+1.  string  File name (with full path if not in local directory)
+2.  float   Period (in days)
+3.  float   Orbital eccentricity
+4.  float   {not used}
+5.  float   Radius of large star (in units of semimajor axis)
+6.  float   {not used}
+7.  float   Radius of small star (in units of semimajor axis)
+8.  float   {not used}
+9.  float   Brightness of large star (magnitudes)
+10. float   {not used}
+11. float   Brightness of small star (magnitudes)
+12. float   {not used}
+13. float   Sine of inclination, sin(i)
+14. float   {not used}
+15. float   Phased epoch of periastron
+16. float   {not used}
+17. float   Argument of periastron (in degrees)
+18. float   {not used}
+19. int     {not used}
+20. int     {not used}
+21. float   {not used}
+22. float   {not used}
+23. float   {not used}
+24. float   {not used}
+25. float   {not used}
+26. float   {not used}
+27. float   {not used}
+28. float   {not used}
+29. float   {not used}
+30. float   {not used}
+31. float   {not used}
+
+Header2 column description:
+1.  char    Light curve filter color  (out of: U,B,V,R,I,J,H,K)
+2.  int     Number of both observed magnitudes and colors (repeat obs.mag/color N times)
+3.  string  Right-ascension (RA)
+4.  string  Declination (Dec)
+5.  float   USNO-B proper motion RA [mas/year]
+6.  float   USNO-B proper motion Dec [mas/year]
+7.  float   Coordinate error in USNO-B [arcseconds]
+
+observed magnitude/color column description:   (from 2MASS)
+1.  string  Obs.mag/color designation (for mag: "x" and for color: "x-x" ; where x is one of: U,B,V,R,I,J,H,K)
+2.  float   Obs.mag/color value  (magnitude)
+3.  float   Obs.mag/color error  (magnitudes)
+
+
+Note that only the colors are used for identifying the EB pairing. The observed magnitude is only used to calculate
+the distance modulus and if this candidate is observable.
+
+
+Example:
+/data/horrox1/jdevor/TrES_LCs/dra0/dra0_01.d2phca.00398.lc 1.045839777032 0.000000 -1.000000 0.289862 0.005993 0.177061 0.014899 0.304794 0.312121 1.572509 0.203526 0.972510 0.017739 0.971121 0.020583 0.000000 -1.000000 2000 0 227.417156 1322.275543 194.793388 809.674231 6.718904 -0.270464 0.464956 0.158358 -0.014524 0.578727 3.117809
+R  2   16:57:33.875  59:31:51.98    -9999.900  -9999.900  -9999.900000
+J-H  0.284000  0.050000
+H-K  0.078000  0.050000
+
+
+
+Output file:
+============
+
+
+MECI results:
+-------------
+
+Line 1 - column description:
+1.  string  File name
+2.  float   Mass1  [Msol]
+3.  float   Error in mass1 [Msol]*
+4.  float   Mass2 [Msol]
+5.  float   Error in mass2 [Msol]*
+6.  float   Age [Gyr]
+7.  float   Error in age [Gyr]*
+8.  float   Score   (low is better, should be about unity)
+9.  float   combined absolute magnitude
+10. float   combined absolute magnitude error
+11. float   score of absolute magnitude  (like #8, but for the magnitudes)
+12. float   combined observes magnitude **
+13. float   Distance [pc]   (from the distance modulus) **
+14. string  Right-ascension (RA) ***
+15. string  Declination (Dec) ***
+16. float   Proper motion RA [mas/year] ***
+17. float   Proper motion Dec [mas/year] ***
+18. float   Coordinate error of proper motion catalogue [arcseconds]
+
+
+Line 2 - column description:   (repeated)
+1.  string  "x-filter"
+2.  string/float  "Mag=xxx"   absolute magnitude in this filter
+3.  string/float  "mag=xxx"   observed magnitude in this filter
+
+
+Note: *If the best-fit was at the edge of the search range, values will be upper/lower limits,
+       and the errors are ill-defined. There are three cases:
+       -1.0 : unknown - one of the other parameters (mass/age) is upper/lower limit 
+       -2.0 : upper limit
+       -3.0 : lower limit
+     **Assumes that the light curve magnitudes haven't been normalized, and that there is negligible reddening and blending.
+    ***These values are taken from the 2mass and/or USNO-B catalogues, they may not be known ("-9999.999").
+
+Example:
+T-and0-01461.asc_P5.615  1.566750 0.003448  0.964916 0.057965  2.525732 1.220726  15.316492   1.778690 0.006492  15.362610   -0.005303 4.397456   01:06:15.353 45:08:25.66  -2.000 -2.000 0.050
+J-filter: Mag=1.079 mag=10.760   H-filter: Mag=0.786 mag=10.463   K-filter: Mag=0.732 mag=10.359   calculated V-filter: Mag=2.096 mag=11.773
+
+
+
+
+MECI best-fit light curve- model fit (*.meci_fit)
+-------------------------------------------------
+
+1. float   Light curve phase
+2. float   MECI light curve model (magnitude)
+
+Examples:
+0.176000  17.997995
+0.178000  17.999349
+0.180000  18.000095
+0.182000  18.000155
+
+
+MECI best-fit light curve- observed data (*.meci_dat)
+-----------------------------------------------------
+
+1. float   Light curve phase = (time stamp / period) (mod 1)
+2. float   Observational data (magnitude)
+3. float   Photometric error (magnitude)
+4. float   MECI model residual (magnitude)
+
+Examples:
+0.000878  17.984346  0.050000  -0.006715
+0.002012  18.025424  0.050000  0.034363
+0.002465  17.984704  0.050000  -0.006357
+0.003342  18.004882  0.050000  0.013821
+
+
+
+Version History (highlights):
+=============================
+1.0 - Initial release
+1.1 - More efficient, better grid minimum-search
+1.2 - Outputs best-fit light curve, more robust contour plots
+1.3 - Enabled eccentric orbits
+1.4 - Improve the best-fit light curve plot, enable limb-darkening extrapolation (for low-mass stars)
+1.5 - Added capability to find distance modulii and calculate observed mag in given filters
+
+
+Contact info:
+=============
+
+Please contact Jonathan Devor (jdevor@cfa.harvard.edu)
+if you encounter any of the following problems:
+
+- Found a major bug
+- Found a minor bug that is easy to fix (e.g. a misspelling)
+- Questions on an issue NOT covered by these release notes, the manual or the code documentation
+- Want general guidance on how to make minor changes to the code yourself (e.g. change a file format)
+- Fan mail
+
+
+Enjoy,
+Jonathan Devor (developer)
